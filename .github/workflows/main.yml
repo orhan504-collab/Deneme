@@ -20,7 +20,7 @@ jobs:
       - name: Flutter Kurulumu
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.0' # Daha stabil ve güncel sürüm
+          flutter-version: '3.13.0'
           channel: 'stable'
 
       - name: Paketleri Getir
@@ -34,3 +34,4 @@ jobs:
         with:
           name: uygulama-dosyasi
           path: build/app/outputs/flutter-apk/app-debug.apk
+          
