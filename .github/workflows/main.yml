@@ -2,7 +2,7 @@ name: Flutter APK Build
 
 on:
   push:
-    branches: [ "main" ] # Senin ana dalın 'ana' olduğu için böyle kalsın
+    branches: [ "main" ] # Senin adin dalın 'main' olduğu için böyle kalsın
 workflow_dispatch:
 jobs:
   build:
