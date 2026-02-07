@@ -3,7 +3,7 @@ name: Flutter APK Build
 on:
   push:
     branches: [ "main" ] # Senin ana dalın 'ana' olduğu için böyle kalsın
-
+workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
