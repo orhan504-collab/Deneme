@@ -30,3 +30,4 @@ jobs:
         with:
           name: apk-dosyasi
           path: build/app/outputs/flutter-apk/app-debug.apk
+          
