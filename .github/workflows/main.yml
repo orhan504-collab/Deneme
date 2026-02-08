@@ -15,10 +15,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Klasorleri Onar ve Web Olustur
-        run: |
-          rm -rf android web
-          flutter create . --platforms android,web
+      - name: Web Sitesini Hazirla
+        run: flutter build web --release --base-href ./
       - name: Paketleri Getir
         run: flutter pub get
       - name: Web Build (Beyaz Ekran Cozumu Dahil)
