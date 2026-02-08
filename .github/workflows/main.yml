@@ -1,50 +1,33 @@
-name: Ruyam Exclusive Web and APK Build
+name: Ruyam Exclusive Build
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Java Kurulumu
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-
-      - name: Flutter Kurulumu
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
-      - name: Proje Altyapisini Onar ve Guncelle
-        # Web ve Android altyapisini sifirdan kurar
+      - name: Onar
         run: |
           rm -rf android web
           flutter create . --platforms android,web
-
-      - name: Paketleri Getir
-        run: flutter pub get
-
-      - name: Web Sitesini Hazirla
-        run: flutter build web --release
-
-      - name: APK Olustur (Android)
-        run: flutter build apk --debug
-
-      - name: Web Dosyalarini Kaydet
-        uses: actions/upload-artifact@v4
+      - run: flutter pub get
+      - run: flutter build web --release
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
         with:
-          name: web-sitesi-dosyalari
+          name: web-dosyalari
           path: build/web/
-
-      - name: APK Kaydet
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: uygulama-dosyasi
+          name: apk-dosyasi
           path: build/app/outputs/flutter-apk/app-debug.apk
           
