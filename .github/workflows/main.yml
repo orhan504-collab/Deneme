@@ -21,14 +21,15 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Proje Altyapisini Guncelle
+        # Bu komut bozuk android dosyalarini yeniden olusturur
+        run: flutter create . --platforms android
+
       - name: Paketleri Getir
         run: flutter pub get
 
       - name: APK Olustur
-        # Bu komut Gradle hatalarını temizleyip sıfırdan derlemeyi zorlar
-        run: |
-          flutter clean
-          flutter build apk --debug --suppress-analytics
+        run: flutter build apk --debug
 
       - name: APK Kaydet
         uses: actions/upload-artifact@v4
