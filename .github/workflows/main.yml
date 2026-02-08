@@ -1,4 +1,4 @@
-name: Ruyam-Exclusive
+name: Ruyam-Exclusive-Build
 on:
   push:
     branches: ["main"]
@@ -15,19 +15,24 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Hazirlik
+      - name: Klasorleri Onar ve Web Olustur
         run: |
           rm -rf android web
           flutter create . --platforms android,web
-      - run: flutter pub get
-      - run: flutter build web --release
-      - run: flutter build apk --debug
-      - uses: actions/upload-artifact@v4
+      - name: Paketleri Getir
+        run: flutter pub get
+      - name: Web Build (Beyaz Ekran Cozumu Dahil)
+        run: flutter build web --release --base-href ./ --web-renderer html
+      - name: APK Build
+        run: flutter build apk --debug
+      - name: Web Dosyalarini Kaydet
+        uses: actions/upload-artifact@v4
         with:
-          name: web-dosyalari
+          name: web-paketi
           path: build/web/
-      - uses: actions/upload-artifact@v4
+      - name: APK Dosyasini Kaydet
+        uses: actions/upload-artifact@v4
         with:
-          name: apk-dosyasi
+          name: apk-paketi
           path: build/app/outputs/flutter-apk/app-debug.apk
           
