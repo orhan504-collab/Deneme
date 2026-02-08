@@ -1,8 +1,7 @@
-name: Ruyam-Final
+name: Ruyam-Web-Deploy
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,18 +10,15 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Onar
-        run: flutter create . --platforms web,android
-      - name: Derle
+      - name: Klasor Onarimi
+        run: flutter create . --platforms web
+      - name: Web Derleme
         run: |
           flutter pub get
-          flutter build web --release --base-href /Deneme/
-          flutter build apk --debug
-          
-      - uses: actions/upload-artifact@v4
+          flutter build web --release --base-href /deneme/
+      - name: İnternete Yukle
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: tum-dosyalar
-          path: |
-            build/web/
-            build/app/outputs/flutter-apk/app-debug.apk
-            
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          
