@@ -1,5 +1,5 @@
-name: deneme
-description: "Ilk APK denemem"
+name: ruyam_exclusive
+description: "Ruyam Exclusive Randevu Sistemi"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,8 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-    supabase_flutter: ^2.0.2
-    http: ^1.1.0
+  supabase_flutter: ^2.0.2
+  http: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true
