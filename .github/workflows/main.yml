@@ -8,13 +8,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4 # v4'e güncellendi
+      - uses: actions/checkout@v4
       
       - name: Java Kurulumu
-        uses: actions/setup-java@v4 # v4'e güncellendi
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17' # Modern Flutter için Java 17 daha iyi
+          java-version: '17'
 
       - name: Flutter Kurulumu
         uses: subosito/flutter-action@v2
@@ -25,10 +25,13 @@ jobs:
         run: flutter pub get
 
       - name: APK Olustur
-        run: flutter build apk --debug
+        # Bu komut Gradle hatalarını temizleyip sıfırdan derlemeyi zorlar
+        run: |
+          flutter clean
+          flutter build apk --debug --suppress-analytics
 
       - name: APK Kaydet
-        uses: actions/upload-artifact@v4 # İşte kritik nokta burası!
+        uses: actions/upload-artifact@v4
         with:
           name: uygulama-dosyasi
           path: build/app/outputs/flutter-apk/app-debug.apk
