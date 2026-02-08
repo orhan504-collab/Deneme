@@ -1,101 +1,143 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const RuyamKuaforApp());
-} class UygulamaAyarlari {
-  static bool isimIstensin = true;
-  static bool telIstensin = true;
-  static bool islemIstensin = false;
+  runApp(const RuyamExclusiveApp());
 }
+
+// --- DINAMIK AYARLAR VE VERILER ---
+class ExclusiveSettings {
+  static bool isimSor = true;
+  static bool telSor = true;
+  static bool islemSor = true;
+  static Color altinSarisi = const Color(0xFFD4AF37);
+}
+
 class Randevu {
-  final String ad;
+  final String isim;
   final String tel;
   final String islem;
-  Randevu({required this.ad, required this.tel, required this.islem});
+  Randevu({required this.isim, required this.tel, required this.islem});
 }
-List<Randevu> randevuListesi = [];
-class RuyamKuaforApp extends StatelessWidget {
-  const RuyamKuaforApp({super.key});
+
+List<Randevu> randevular = [];
+
+class RuyamExclusiveApp extends StatelessWidget {
+  const RuyamExclusiveApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.pink),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: ExclusiveSettings.altinSarisi,
+        scaffoldBackgroundColor: const Color(0xFF0F0F0F),
+        fontFamily: 'Georgia',
+      ),
       home: const GirisSayfasi(),
     );
   }
 }
-// --- GİRİŞ SAYFASI ---
+
+// --- ANA GIRIS SAYFASI ---
 class GirisSayfasi extends StatelessWidget {
   const GirisSayfasi({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.brush, size: 70, color: Colors.pink),
-            const Text('Rüyam Kuaför', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 50),
-            ElevatedButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MusteriEkrani())),
-              child: const Text('Müşteri Girişi'),
-            ),
-            const SizedBox(height: 20),
-            OutlinedButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const IsletmeEkrani())),
-              child: const Text('İşletme Girişi'),
-            ),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          border: Border.fromBorderSide(BorderSide(color: Color(0xFFD4AF37), width: 2)),
+          gradient: RadialGradient(colors: [Color(0xFF222222), Colors.black], radius: 1.5),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.auto_awesome, size: 80, color: ExclusiveSettings.altinSarisi),
+              const SizedBox(height: 20),
+              Text('RÜYAM', style: TextStyle(fontSize: 48, letterSpacing: 8, color: ExclusiveSettings.altinSarisi, fontWeight: FontWeight.w200)),
+              const Text('EXCLUSIVE SALON', style: TextStyle(fontSize: 14, letterSpacing: 4, color: Colors.white54)),
+              const SizedBox(height: 60),
+              _anaButon(context, 'MÜŞTERİ GİRİŞİ', const MusteriEkrani(), true),
+              const SizedBox(height: 20),
+              _anaButon(context, 'İŞLETME PANELİ', const IsletmeEkrani(), false),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _anaButon(BuildContext context, String metin, Widget sayfa, bool dolu) {
+    return SizedBox(
+      width: 280,
+      height: 55,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: dolu ? ExclusiveSettings.altinSarisi : Colors.transparent,
+          side: BorderSide(color: ExclusiveSettings.altinSarisi),
+          foregroundColor: dolu ? Colors.black : ExclusiveSettings.altinSarisi,
+        ),
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => sayfa)),
+        child: Text(metin, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
+      ),
+    );
+  }
 }
+
 // --- MÜŞTERİ EKRANI ---
 class MusteriEkrani extends StatefulWidget {
   const MusteriEkrani({super.key});
   @override
   State<MusteriEkrani> createState() => _MusteriEkraniState();
 }
+
 class _MusteriEkraniState extends State<MusteriEkrani> {
   final TextEditingController _ad = TextEditingController();
   final TextEditingController _tel = TextEditingController();
   final TextEditingController _islem = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Randevu Formu')),
+      appBar: AppBar(title: const Text('VIP RANDEVU FORMU')),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(25),
         child: Column(
           children: [
-            if (UygulamaAyarlari.isimIstensin) TextField(controller: _ad, decoration: const InputDecoration(labelText: 'Ad Soyad')),
-            if (UygulamaAyarlari.telIstensin) TextField(controller: _tel, decoration: const InputDecoration(labelText: 'Telefon'), keyboardType: TextInputType.phone),
-            if (UygulamaAyarlari.islemIstensin) TextField(controller: _islem, decoration: const InputDecoration(labelText: 'İşlem Seçimi (Fön, Boya vb.)')),
-            const SizedBox(height: 20),
+            if (ExclusiveSettings.isimSor) _ozelInput(_ad, 'İsim Soyisim', Icons.person),
+            if (ExclusiveSettings.telSor) _ozelInput(_tel, 'Telefon Numarası', Icons.phone),
+            if (ExclusiveSettings.islemSor) _ozelInput(_islem, 'İstenen İşlem', Icons.content_cut),
+            const SizedBox(height: 30),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: ExclusiveSettings.altinSarisi, foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
               onPressed: () {
-                setState(() {
-                  randevuListesi.add(Randevu(ad: _ad.text, tel: _tel.text, islem: _islem.text));
-                });
+                setState(() => randevular.add(Randevu(isim: _ad.text, tel: _tel.text, islem: _islem.text)));
                 Navigator.pop(context);
               },
-              child: const Text('Randevuyu Kaydet'),
+              child: const Text('RANDEVU TALEBİNİ GÖNDER'),
             ),
           ],
         ),
       ),
     );
   }
+
+  Widget _ozelInput(TextEditingController c, String l, IconData i) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: TextField(controller: c, decoration: InputDecoration(labelText: l, prefixIcon: Icon(i, color: ExclusiveSettings.altinSarisi), border: const OutlineInputBorder())),
+    );
+  }
 }
+
 // --- İŞLETME EKRANI ---
 class IsletmeEkrani extends StatefulWidget {
   const IsletmeEkrani({super.key});
   @override
   State<IsletmeEkrani> createState() => _IsletmeEkraniState();
 }
+
 class _IsletmeEkraniState extends State<IsletmeEkrani> {
   @override
   Widget build(BuildContext context) {
@@ -103,29 +145,36 @@ class _IsletmeEkraniState extends State<IsletmeEkrani> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Yönetim Paneli'),
-          bottom: const TabBar(tabs: [Tab(text: 'Randevular'), Tab(text: 'Soru Ayarları')]),
+          title: const Text('ADMIN PANEL'),
+          bottom: TabBar(indicatorColor: ExclusiveSettings.altinSarisi, tabs: const [Tab(text: 'RANDEVULAR'), Tab(text: 'AYARLAR')]),
         ),
         body: TabBarView(
           children: [
             ListView.builder(
-              itemCount: randevuListesi.length,
+              itemCount: randevular.length,
               itemBuilder: (context, i) => ListTile(
-                title: Text(randevuListesi[i].ad),
-                subtitle: Text("İşlem: ${randevuListesi[i].islem}"),
-                trailing: IconButton(icon: const Icon(Icons.delete), onPressed: () => setState(() => randevuListesi.removeAt(i))),
+                title: Text(randevular[i].isim, style: TextStyle(color: ExclusiveSettings.altinSarisi)),
+                subtitle: Text("İşlem: ${randevular[i].islem}\nTel: ${randevular[i].tel}"),
+                trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => setState(() => randevular.removeAt(i))),
               ),
             ),
-            Column(
-              children: [
-                SwitchListTile(title: const Text("İsim Sorulsun"), value: UygulamaAyarlari.isimIstensin, onChanged: (v) => setState(() => UygulamaAyarlari.isimIstensin = v)),
-                SwitchListTile(title: const Text("Telefon Sorulsun"), value: UygulamaAyarlari.telIstensin, onChanged: (v) => setState(() => UygulamaAyarlari.telIstensin = v)),
-                SwitchListTile(title: const Text("İşlem Sorulsun"), value: UygulamaAyarlari.islemIstensin, onChanged: (v) => setState(() => UygulamaAyarlari.islemIstensin = v)),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  _ayarSwitch("İsim Alanı", ExclusiveSettings.isimSor, (v) => setState(() => ExclusiveSettings.isimSor = v)),
+                  _ayarSwitch("Telefon Alanı", ExclusiveSettings.telSor, (v) => setState(() => ExclusiveSettings.telSor = v)),
+                  _ayarSwitch("İşlem Alanı", ExclusiveSettings.islemSor, (v) => setState(() => ExclusiveSettings.islemSor = v)),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _ayarSwitch(String t, bool v, Function(bool) c) {
+    return SwitchListTile(title: Text(t), value: v, activeColor: ExclusiveSettings.altinSarisi, onChanged: c);
   }
 }
