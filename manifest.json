@@ -1,6 +1,6 @@
 {
-    "name": "deneme",
-    "short_name": "deneme",
+    "name": "ruyam_exclusive",
+    "short_name": "ruyam_exclusive",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
