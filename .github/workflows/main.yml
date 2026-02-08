@@ -16,8 +16,9 @@ jobs:
       - name: Derle
         run: |
           flutter pub get
-          flutter build web --release --base-href ./
+          flutter build web --release --base-href /Deneme/
           flutter build apk --debug
+          
       - uses: actions/upload-artifact@v4
         with:
           name: tum-dosyalar
