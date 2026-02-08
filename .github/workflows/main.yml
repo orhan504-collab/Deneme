@@ -8,13 +8,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v4 # v4'e güncellendi
+      
+      - name: Java Kurulumu
+        uses: actions/setup-java@v4 # v4'e güncellendi
+        with:
+          distribution: 'zulu'
+          java-version: '17' # Modern Flutter için Java 17 daha iyi
+
+      - name: Flutter Kurulumu
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter pub get
-      - run: flutter build apk --debug
-      - uses: actions/upload-artifact@v3
+
+      - name: Paketleri Getir
+        run: flutter pub get
+
+      - name: APK Olustur
+        run: flutter build apk --debug
+
+      - name: APK Kaydet
+        uses: actions/upload-artifact@v4 # İşte kritik nokta burası!
         with:
           name: uygulama-dosyasi
           path: build/app/outputs/flutter-apk/app-debug.apk
