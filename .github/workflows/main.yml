@@ -1,4 +1,4 @@
-name: Flutter APK Build
+name: Ruyam Exclusive Web and APK Build
 on:
   push:
     branches: [ "main" ]
@@ -21,15 +21,26 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Proje Altyapisini Guncelle
-        # Bu komut bozuk android dosyalarini yeniden olusturur
-        run: flutter create . --platforms android
+      - name: Proje Altyapisini Onar ve Guncelle
+        # Web ve Android altyapisini sifirdan kurar
+        run: |
+          rm -rf android web
+          flutter create . --platforms android,web
 
       - name: Paketleri Getir
         run: flutter pub get
 
-      - name: APK Olustur
+      - name: Web Sitesini Hazirla
+        run: flutter build web --release
+
+      - name: APK Olustur (Android)
         run: flutter build apk --debug
+
+      - name: Web Dosyalarini Kaydet
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-sitesi-dosyalari
+          path: build/web/
 
       - name: APK Kaydet
         uses: actions/upload-artifact@v4
