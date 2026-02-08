@@ -1,4 +1,4 @@
-name: Ruyam-Exclusive-Build
+name: Ruyam-Final
 on:
   push:
     branches: ["main"]
@@ -8,29 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Web Sitesini Hazirla
-        run: flutter build web --release --base-href ./
-      - name: Paketleri Getir
-        run: flutter pub get
-      - name: Web Build (Beyaz Ekran Cozumu Dahil)
-        run: flutter build web --release --base-href ./ --web-renderer html
-      - name: APK Build
-        run: flutter build apk --debug
-      - name: Web Dosyalarini Kaydet
-        uses: actions/upload-artifact@v4
+      - name: Onar
+        run: flutter create . --platforms web,android
+      - name: Derle
+        run: |
+          flutter pub get
+          flutter build web --release --base-href ./
+          flutter build apk --debug
+      - uses: actions/upload-artifact@v4
         with:
-          name: web-paketi
-          path: build/web/
-      - name: APK Dosyasini Kaydet
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk-paketi
-          path: build/app/outputs/flutter-apk/app-debug.apk
-          
+          name: tum-dosyalar
+          path: |
+            build/web/
+            build/app/outputs/flutter-apk/app-debug.apk
+            
