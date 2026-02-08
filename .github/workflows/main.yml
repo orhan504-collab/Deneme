@@ -1,4 +1,4 @@
-name: Ruyam Exclusive Build
+name: Ruyam-Exclusive
 on:
   push:
     branches: ["main"]
@@ -15,7 +15,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Onar
+      - name: Hazirlik
         run: |
           rm -rf android web
           flutter create . --platforms android,web
@@ -30,4 +30,3 @@ jobs:
         with:
           name: apk-dosyasi
           path: build/app/outputs/flutter-apk/app-debug.apk
-          
