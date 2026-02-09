@@ -1,49 +1,29 @@
 name: Ruyam-Web-Deploy
-
 on:
   push:
-    branches:
-      - main  # Kodları 'main' dalına attığında çalışır
-
+    branches: [ main ]
 permissions:
   contents: read
   pages: write
   id-token: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Flutter SDK Kurulumu
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
-      - name: Paketleri Getir
-        run: flutter pub get
-
-      - name: Web Uygulamasını Derle
-        run: flutter build web --release --base-href "/Deneme/"
-
-      - name: GitHub Pages Ayarları
-        uses: actions/configure-pages@v4
-
-      - name: Derlenen Dosyaları Yukle
-        uses: actions/upload-pages-artifact@v3
+      - run: flutter pub get
+      - run: flutter build web --release --base-href "/Deneme/"
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Yayına Al
-        id: deployment
-        uses: actions/deploy-pages@v4
-        
+      - uses: actions/deploy-pages@v4
+      
