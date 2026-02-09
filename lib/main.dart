@@ -4,10 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // En son verdiğin çalışan anahtarı buraya ekledim
+  // Güvenli olan 'Publishable Anon Key' kullanıyoruz
   await Supabase.initialize(
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
-    anonKey: 'Sb_publishable_fgGzVzBsmAYIqZ68T4fLag_vtP9HvZe',
+    anonKey: 'Sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh', 
   );
 
   runApp(const RuyamApp());
@@ -45,7 +45,7 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
   Future<void> randevuKaydet() async {
     if (_adController.text.isEmpty || _telController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen tüm alanları doldurun!')),
+        const SnackBar(content: Text('Lütfen bilgileri eksiksiz girin!')),
       );
       return;
     }
@@ -61,7 +61,7 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Randevunuz Başarıyla Alındı! ✅'),
+          content: Text('Randevunuz Alındı! ✅'),
           backgroundColor: Colors.green,
         ),
       );
@@ -69,10 +69,10 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
       _telController.clear();
     } catch (e) {
       if (!mounted) return;
-      // Hata mesajını daha okunaklı gösterir
+      // Hata alırsan sebebi muhtemelen Supabase'deki RLS kuralıdır
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Bağlantı Hatası: $e'),
+          content: Text('Hata: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -98,51 +98,87 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              child: Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.auto_fix_high, size: 50, color: Colors.pink),
-                    const SizedBox(height: 20),
-                    const Text('Randevu Formu', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 20),
-                    TextField(
-                      controller: _adController,
-                      decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder()),
+            child: Column(
+              children: [
+                Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.auto_fix_high, size: 50, color: Colors.pink),
+                        const SizedBox(height: 20),
+                        TextField(
+                          controller: _adController,
+                          decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder()),
+                        ),
+                        const SizedBox(height: 15),
+                        TextField(
+                          controller: _telController,
+                          decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder()),
+                          keyboardType: TextInputType.phone,
+                        ),
+                        const SizedBox(height: 15),
+                        DropdownButtonFormField<String>(
+                          value: _secilenIslem,
+                          decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'İşlem'),
+                          onChanged: (v) => setState(() => _secilenIslem = v!),
+                          items: ['Fön', 'Boya', 'Kesim', 'Makyaj'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                        ),
+                        const SizedBox(height: 30),
+                        ElevatedButton(
+                          onPressed: randevuKaydet,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.pink,
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                          child: const Text('Randevu Al', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 15),
-                    TextField(
-                      controller: _telController,
-                      decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder()),
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 15),
-                    DropdownButtonFormField<String>(
-                      value: _secilenIslem,
-                      decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'İşlem'),
-                      onChanged: (v) => setState(() => _secilenIslem = v!),
-                      items: ['Fön', 'Boya', 'Kesim', 'Makyaj'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                    ),
-                    const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: randevuKaydet,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink,
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Randevu Al', style: TextStyle(color: Colors.white, fontSize: 16)),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 40),
+                // Randevuları görebilmen için gizli buton
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPaneli()));
+                  },
+                  icon: const Icon(Icons.admin_panel_settings, color: Colors.grey),
+                  label: const Text('Randevuları Görüntüle', style: TextStyle(color: Colors.grey)),
+                ),
+              ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AdminPaneli extends StatelessWidget {
+  const AdminPaneli({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Randevu Listesi'), backgroundColor: Colors.pink.shade100),
+      body: StreamBuilder(
+        stream: Supabase.instance.client.from('RuyamDB').stream(primaryKey: ['id']),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          final list = snapshot.data!;
+          return ListView.builder(
+            itemCount: list.length,
+            itemBuilder: (context, i) => ListTile(
+              title: Text(list[i]['Ad'] ?? 'İsimsiz'),
+              subtitle: Text("${list[i]['islem']} - ${list[i]['Tel']}"),
+              trailing: const Icon(Icons.check_circle, color: Colors.green),
+            ),
+          );
+        },
       ),
     );
   }
