@@ -4,10 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // İşte senin gerçek anahtarınla güncellenmiş bağlantı:
+  // En son verdiğin çalışan anahtarı buraya ekledim
   await Supabase.initialize(
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
-    anonKey: 'Sb_publishable_fgGzVzBsmAYIqZ68T4fLag_vtP9HvZe', 
+    anonKey: 'Sb_publishable_fgGzVzBsmAYIqZ68T4fLag_vtP9HvZe',
   );
 
   runApp(const RuyamApp());
@@ -69,9 +69,10 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
       _telController.clear();
     } catch (e) {
       if (!mounted) return;
+      // Hata mesajını daha okunaklı gösterir
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Hata: $e'),
+          content: Text('Bağlantı Hatası: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -82,7 +83,7 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rüyam Exclusive Randevu'),
+        title: const Text('Rüyam Exclusive'),
         backgroundColor: Colors.pink.shade100,
         centerTitle: true,
       ),
@@ -96,44 +97,48 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
         ),
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(25.0),
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 400),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.event_available, size: 50, color: Colors.pink),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _adController,
-                    decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 15),
-                  TextField(
-                    controller: _telController,
-                    decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder()),
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 15),
-                  DropdownButtonFormField<String>(
-                    value: _secilenIslem,
-                    decoration: const InputDecoration(border: OutlineInputBorder()),
-                    onChanged: (v) => setState(() => _secilenIslem = v!),
-                    items: ['Fön', 'Boya', 'Kesim', 'Manikür'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                  ),
-                  const SizedBox(height: 25),
-                  ElevatedButton(
-                    onPressed: randevuKaydet,
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 50)),
-                    child: const Text('Randevu Al', style: TextStyle(color: Colors.white)),
-                  ),
-                ],
+            padding: const EdgeInsets.all(20.0),
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              child: Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.auto_fix_high, size: 50, color: Colors.pink),
+                    const SizedBox(height: 20),
+                    const Text('Randevu Formu', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _adController,
+                      decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder()),
+                    ),
+                    const SizedBox(height: 15),
+                    TextField(
+                      controller: _telController,
+                      decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder()),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 15),
+                    DropdownButtonFormField<String>(
+                      value: _secilenIslem,
+                      decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'İşlem'),
+                      onChanged: (v) => setState(() => _secilenIslem = v!),
+                      items: ['Fön', 'Boya', 'Kesim', 'Makyaj'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: randevuKaydet,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('Randevu Al', style: TextStyle(color: Colors.white, fontSize: 16)),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
