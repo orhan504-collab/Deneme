@@ -4,10 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Güvenli olan 'Publishable Anon Key' kullanıyoruz
+  // 'Gizliliğe İzin Ver' diyerek geçtiğin o güçlü anahtar burada:
   await Supabase.initialize(
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
-    anonKey: 'Sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh', 
+    anonKey: 'sb_secret_WJofh5X8mh4yKczR3ysluw_QGvHZ05X',
   );
 
   runApp(const RuyamApp());
@@ -45,13 +45,13 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
   Future<void> randevuKaydet() async {
     if (_adController.text.isEmpty || _telController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bilgileri eksiksiz girin!')),
+        const SnackBar(content: Text('Lütfen tüm alanları doldurun!')),
       );
       return;
     }
 
     try {
-      // Supabase'deki tablo adın: RuyamDB
+      // Veritabanına yazma işlemi
       await Supabase.instance.client.from('RuyamDB').insert({
         'Ad': _adController.text,
         'Tel': _telController.text,
@@ -61,7 +61,7 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Randevunuz Alındı! ✅'),
+          content: Text('Randevunuz Başarıyla Alındı! ✅'),
           backgroundColor: Colors.green,
         ),
       );
@@ -69,7 +69,6 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
       _telController.clear();
     } catch (e) {
       if (!mounted) return;
-      // Hata alırsan sebebi muhtemelen Supabase'deki RLS kuralıdır
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Hata: $e'),
@@ -133,15 +132,16 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.pink,
                             minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: const Text('Randevu Al', style: TextStyle(color: Colors.white)),
+                          child: const Text('Randevu Al', style: TextStyle(color: Colors.white, fontSize: 16)),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 40),
-                // Randevuları görebilmen için gizli buton
+                // Yönetici Paneli Butonu
                 TextButton.icon(
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPaneli()));
@@ -158,25 +158,39 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
   }
 }
 
+// YENİ: YÖNETİCİ PANELİ SAYFASI
 class AdminPaneli extends StatelessWidget {
   const AdminPaneli({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Randevu Listesi'), backgroundColor: Colors.pink.shade100),
+      appBar: AppBar(title: const Text('Gelen Randevular'), backgroundColor: Colors.pink.shade100),
       body: StreamBuilder(
         stream: Supabase.instance.client.from('RuyamDB').stream(primaryKey: ['id']),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          final list = snapshot.data!;
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("Henüz randevu yok."));
+          }
+          
+          final randevular = snapshot.data!;
           return ListView.builder(
-            itemCount: list.length,
-            itemBuilder: (context, i) => ListTile(
-              title: Text(list[i]['Ad'] ?? 'İsimsiz'),
-              subtitle: Text("${list[i]['islem']} - ${list[i]['Tel']}"),
-              trailing: const Icon(Icons.check_circle, color: Colors.green),
-            ),
+            itemCount: randevular.length,
+            itemBuilder: (context, index) {
+              final veri = randevular[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: ListTile(
+                  leading: const CircleAvatar(backgroundColor: Colors.pink, child: Icon(Icons.person, color: Colors.white)),
+                  title: Text(veri['Ad'] ?? 'İsimsiz'),
+                  subtitle: Text("${veri['islem']} - ${veri['Tel']}"),
+                  trailing: const Icon(Icons.check_circle, color: Colors.green),
+                ),
+              );
+            },
           );
         },
       ),
