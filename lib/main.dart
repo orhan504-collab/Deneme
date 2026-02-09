@@ -4,10 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Tarayıcıda çalışmasına izin verilen tek güvenli anahtar budur
+  // Tarayıcı dostu ve güvenli 'Anon' anahtarın
   await Supabase.initialize(
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
-    anonKey: 'Sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh', 
+    anonKey: 'Sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh',
   );
 
   runApp(const RuyamApp());
@@ -51,7 +51,7 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
     }
 
     try {
-      // Supabase'deki tablo adın: RuyamDB
+      // Supabase Tablo Adı: RuyamDB
       await Supabase.instance.client.from('RuyamDB').insert({
         'Ad': _adController.text,
         'Tel': _telController.text,
@@ -69,10 +69,9 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
       _telController.clear();
     } catch (e) {
       if (!mounted) return;
-      // Hata mesajını daha okunaklı gösterir
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Bağlantı Hatası: $e'),
+          content: Text('Hata oluştu: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -132,23 +131,23 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
                           onPressed: randevuKaydet,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.pink,
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            minimumSize: const Size(double.infinity, 55),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Randevu Al', style: TextStyle(color: Colors.white, fontSize: 16)),
+                          child: const Text('Randevu Al', style: TextStyle(color: Colors.white, fontSize: 18)),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 50),
-                // Gizli Admin Paneli Butonu
+                // Senin için gizli admin giriş butonu
                 TextButton.icon(
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPaneli()));
                   },
                   icon: const Icon(Icons.admin_panel_settings, color: Colors.grey),
-                  label: const Text('Randevuları Görüntüle', style: TextStyle(color: Colors.grey)),
+                  label: const Text('Yönetici: Randevuları Gör', style: TextStyle(color: Colors.grey)),
                 ),
               ],
             ),
@@ -171,14 +170,17 @@ class AdminPaneli extends StatelessWidget {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final list = snapshot.data!;
+          if (list.isEmpty) return const Center(child: Text("Henüz randevu yok."));
+          
           return ListView.builder(
             itemCount: list.length,
             itemBuilder: (context, i) => Card(
-              margin: const EdgeInsets.all(8),
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: ListTile(
+                leading: const CircleAvatar(backgroundColor: Colors.pink, child: Icon(Icons.person, color: Colors.white)),
                 title: Text(list[i]['Ad'] ?? 'İsimsiz'),
-                subtitle: Text("${list[i]['islem']} - ${list[i]['Tel']}"),
-                trailing: const Icon(Icons.check_circle, color: Colors.green),
+                subtitle: Text("İşlem: ${list[i]['islem']} \nTel: ${list[i]['Tel']}"),
+                isThreeLine: true,
               ),
             ),
           );
