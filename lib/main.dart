@@ -4,10 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 'Gizliliğe İzin Ver' diyerek geçtiğin o güçlü anahtar burada:
+  // Tarayıcıda çalışmasına izin verilen tek güvenli anahtar budur
   await Supabase.initialize(
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
-    anonKey: 'sb_secret_WJofh5X8mh4yKczR3ysluw_QGvHZ05X',
+    anonKey: 'Sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh', 
   );
 
   runApp(const RuyamApp());
@@ -51,7 +51,7 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
     }
 
     try {
-      // Veritabanına yazma işlemi
+      // Supabase'deki tablo adın: RuyamDB
       await Supabase.instance.client.from('RuyamDB').insert({
         'Ad': _adController.text,
         'Tel': _telController.text,
@@ -69,9 +69,10 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
       _telController.clear();
     } catch (e) {
       if (!mounted) return;
+      // Hata mesajını daha okunaklı gösterir
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Hata: $e'),
+          content: Text('Bağlantı Hatası: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -140,8 +141,8 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
-                // Yönetici Paneli Butonu
+                const SizedBox(height: 50),
+                // Gizli Admin Paneli Butonu
                 TextButton.icon(
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPaneli()));
@@ -158,7 +159,6 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
   }
 }
 
-// YENİ: YÖNETİCİ PANELİ SAYFASI
 class AdminPaneli extends StatelessWidget {
   const AdminPaneli({super.key});
 
@@ -169,28 +169,18 @@ class AdminPaneli extends StatelessWidget {
       body: StreamBuilder(
         stream: Supabase.instance.client.from('RuyamDB').stream(primaryKey: ['id']),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Henüz randevu yok."));
-          }
-          
-          final randevular = snapshot.data!;
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          final list = snapshot.data!;
           return ListView.builder(
-            itemCount: randevular.length,
-            itemBuilder: (context, index) {
-              final veri = randevular[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: ListTile(
-                  leading: const CircleAvatar(backgroundColor: Colors.pink, child: Icon(Icons.person, color: Colors.white)),
-                  title: Text(veri['Ad'] ?? 'İsimsiz'),
-                  subtitle: Text("${veri['islem']} - ${veri['Tel']}"),
-                  trailing: const Icon(Icons.check_circle, color: Colors.green),
-                ),
-              );
-            },
+            itemCount: list.length,
+            itemBuilder: (context, i) => Card(
+              margin: const EdgeInsets.all(8),
+              child: ListTile(
+                title: Text(list[i]['Ad'] ?? 'İsimsiz'),
+                subtitle: Text("${list[i]['islem']} - ${list[i]['Tel']}"),
+                trailing: const Icon(Icons.check_circle, color: Colors.green),
+              ),
+            ),
           );
         },
       ),
