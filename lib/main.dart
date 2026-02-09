@@ -4,10 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Supabase ayarlarını ve yeni anahtarını buraya sabitledik
+  // İşte senin gerçek anahtarınla güncellenmiş bağlantı:
   await Supabase.initialize(
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
-    anonKey: 'Tmtdnmkgcaidhnqcacer', // Paylaştığın güncel anahtar
+    anonKey: 'Sb_publishable_fgGzVzBsmAYIqZ68T4fLag_vtP9HvZe', 
   );
 
   runApp(const RuyamApp());
@@ -51,7 +51,7 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
     }
 
     try {
-      // Veritabanı tablonun adı: RuyamDB
+      // Supabase'deki tablo adın: RuyamDB
       await Supabase.instance.client.from('RuyamDB').insert({
         'Ad': _adController.text,
         'Tel': _telController.text,
@@ -61,7 +61,7 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Randevunuz Başarıyla Alındı!'),
+          content: Text('Randevunuz Başarıyla Alındı! ✅'),
           backgroundColor: Colors.green,
         ),
       );
@@ -96,76 +96,42 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
         ),
         child: Center(
           child: SingleChildScrollView(
+            padding: const EdgeInsets.all(25.0),
             child: Container(
               constraints: const BoxConstraints(maxWidth: 400),
-              padding: const EdgeInsets.all(25.0),
-              margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.pink.withOpacity(0.1),
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  )
-                ],
+                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
               ),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.auto_fix_high, size: 50, color: Colors.pink),
+                  const Icon(Icons.event_available, size: 50, color: Colors.pink),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Randevu Formu',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.pink),
-                  ),
-                  const SizedBox(height: 30),
                   TextField(
                     controller: _adController,
-                    decoration: const InputDecoration(
-                      labelText: 'Ad Soyad',
-                      prefixIcon: Icon(Icons.person),
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder()),
                   ),
                   const SizedBox(height: 15),
                   TextField(
                     controller: _telController,
-                    decoration: const InputDecoration(
-                      labelText: 'Telefon',
-                      prefixIcon: Icon(Icons.phone),
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder()),
                     keyboardType: TextInputType.phone,
                   ),
                   const SizedBox(height: 15),
                   DropdownButtonFormField<String>(
                     value: _secilenIslem,
-                    decoration: const InputDecoration(
-                      labelText: 'Yapılacak İşlem',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (yeni) => setState(() => _secilenIslem = yeni!),
-                    items: <String>['Fön', 'Boya', 'Kesim', 'Manikür'].map((String value) {
-                      return DropdownMenuItem<String>(value: value, child: Text(value));
-                    }).toList(),
+                    decoration: const InputDecoration(border: OutlineInputBorder()),
+                    onChanged: (v) => setState(() => _secilenIslem = v!),
+                    items: ['Fön', 'Boya', 'Kesim', 'Manikür'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                   ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed: randevuKaydet,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text(
-                        'Onayla ve Gönder',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                    ),
+                  const SizedBox(height: 25),
+                  ElevatedButton(
+                    onPressed: randevuKaydet,
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 50)),
+                    child: const Text('Randevu Al', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
