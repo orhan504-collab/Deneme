@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // URL ve Doğruladığın Yayınlanabilir Anahtar
+  // URL ve Anon Key ikilisi
   await Supabase.initialize(
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
     anonKey: 'sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh',
@@ -45,17 +45,17 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
   Future<void> randevuKaydet() async {
     if (_adController.text.isEmpty || _telController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen tüm alanları doldurun!')),
+        const SnackBar(content: Text('Lütfen alanları doldurun!')),
       );
       return;
     }
 
     try {
-      // Veritabanı Tablon: RuyamDB
+      // DİKKAT: 'Islem' olarak güncellediğin sütun adı burada kullanıldı
       await Supabase.instance.client.from('RuyamDB').insert({
         'Ad': _adController.text,
         'Tel': _telController.text,
-        'islem': _secilenIslem,
+        'Islem': _secilenIslem, // Burayı 'Islem' yaptık
       });
 
       if (!mounted) return;
@@ -134,13 +134,13 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
                             minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: const Text('Randevu Al', style: TextStyle(color: Colors.white, fontSize: 16)),
+                          child: const Text('Randevu Al', style: TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 50),
                 TextButton.icon(
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPaneli()));
@@ -169,8 +169,6 @@ class AdminPaneli extends StatelessWidget {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final list = snapshot.data!;
-          if (list.isEmpty) return const Center(child: Text("Henüz randevu kaydı yok."));
-          
           return ListView.builder(
             itemCount: list.length,
             itemBuilder: (context, i) => Card(
@@ -178,7 +176,7 @@ class AdminPaneli extends StatelessWidget {
               child: ListTile(
                 leading: const CircleAvatar(backgroundColor: Colors.pink, child: Icon(Icons.person, color: Colors.white)),
                 title: Text(list[i]['Ad'] ?? 'İsimsiz'),
-                subtitle: Text("İşlem: ${list[i]['islem']} \nTel: ${list[i]['Tel']}"),
+                subtitle: Text("İşlem: ${list[i]['Islem']} \nTel: ${list[i]['Tel']}"), // Admin panelini de 'Islem' yaptık
               ),
             ),
           );
