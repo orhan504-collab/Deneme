@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; // 'İ' harfi 'i' olarak düzeltildi.
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -7,7 +7,10 @@ void main() async {
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
     anonKey: 'sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh',
   );
-  runApp(const MaterialApp(home: RuyamWebPage(), debugShowCheckedModeBanner: false));
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false, 
+    home: RuyamWebPage(),
+  ));
 }
 
 class RuyamWebPage extends StatefulWidget {
@@ -32,21 +35,21 @@ class _RuyamWebPageState extends State<RuyamWebPage> {
 
   Future<void> _ayarlariCek() async {
     try {
-      final veri = await Supabase.instance.client.from('WebAyarlari').select();
-      if (veri.isNotEmpty) {
-        for (var ayar in veri) {
-          if (ayar['anahtar'] == 'ad_aktif') setState(() => _adGoster = ayar['deger'] == 'true');
-          if (ayar['anahtar'] == 'tel_aktif') setState(() => _telGoster = ayar['deger'] == 'true');
-          if (ayar['anahtar'] == 'servisler') {
-            setState(() {
-              _hizmetler = (ayar['deger'] as String).split(',');
-              if (_hizmetler.isNotEmpty) _secilen = _hizmetler.first;
-            });
+      final res = await Supabase.instance.client.from('WebAyarlari').select();
+      if (res.isNotEmpty) {
+        setState(() {
+          for (var item in res) {
+            if (item['anahtar'] == 'ad_aktif') _adGoster = item['deger'] == 'true';
+            if (item['anahtar'] == 'tel_aktif') _telGoster = item['deger'] == 'true';
+            if (item['anahtar'] == 'servisler') {
+              _hizmetler = (item['deger'] as String).split(',');
+              _secilen = _hizmetler.first;
+            }
           }
-        }
+        });
       }
     } catch (e) {
-      debugPrint("Hata: $e");
+      debugPrint("Ayar Hatası: $e");
     }
   }
 
@@ -55,28 +58,28 @@ class _RuyamWebPageState extends State<RuyamWebPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF5F8),
       body: Center(
-        child: Container(
-          maxWidth: 400,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('RÜYAM BAYAN KUAFÖRÜ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
-              const SizedBox(height: 30),
-              if (_adGoster) TextField(controller: _ad, decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder())),
-              if (_adGoster) const SizedBox(height: 10),
-              if (_telGoster) TextField(controller: _tel, decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder())),
-              if (_telGoster) const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: _secilen,
-                items: _hizmetler.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                onChanged: (v) => setState(() => _secilen = v),
-                decoration: const InputDecoration(labelText: 'İşlem Seçin', border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  try {
+        child: SingleChildScrollView(
+          child: Container(
+            maxWidth: 400,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const Text('RÜYAM BAYAN KUAFÖRÜ', 
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
+                const SizedBox(height: 30),
+                if (_adGoster) TextField(controller: _ad, decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder())),
+                if (_adGoster) const SizedBox(height: 10),
+                if (_telGoster) TextField(controller: _tel, decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder())),
+                if (_telGoster) const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: _secilen,
+                  items: _hizmetler.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                  onChanged: (v) => setState(() => _secilen = v),
+                  decoration: const InputDecoration(labelText: 'İşlem Seçin', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
                     await Supabase.instance.client.from('RuyamDB').insert({
                       'Ad': _adGoster ? _ad.text : 'İsimsiz',
                       'Tel': _telGoster ? _tel.text : 'No Yok',
@@ -84,14 +87,12 @@ class _RuyamWebPageState extends State<RuyamWebPage> {
                     });
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Randevu Alındı! ✨')));
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Hata: $e')));
-                  }
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent, minimumSize: const Size(double.infinity, 50)),
-                child: const Text('RANDEVU AL', style: TextStyle(color: Colors.white)),
-              ),
-            ],
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent, minimumSize: const Size(double.infinity, 50)),
+                  child: const Text('RANDEVU AL', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
           ),
         ),
       ),
