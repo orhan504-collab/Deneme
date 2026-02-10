@@ -7,19 +7,16 @@ void main() async {
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
     anonKey: 'sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh',
   );
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false, 
-    home: RuyamWebPage(),
-  ));
+  runApp(const MaterialApp(home: RuyamWeb(), debugShowCheckedModeBanner: false));
 }
 
-class RuyamWebPage extends StatefulWidget {
-  const RuyamWebPage({super.key});
+class RuyamWeb extends StatefulWidget {
+  const RuyamWeb({super.key});
   @override
-  State<RuyamWebPage> createState() => _RuyamWebPageState();
+  State<RuyamWeb> createState() => _RuyamWebState();
 }
 
-class _RuyamWebPageState extends State<RuyamWebPage> {
+class _RuyamWebState extends State<RuyamWeb> {
   bool _adGoster = true;
   bool _telGoster = true;
   List<String> _hizmetler = ['Fön', 'Boya', 'Kesim'];
@@ -64,8 +61,7 @@ class _RuyamWebPageState extends State<RuyamWebPage> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                const Text('RÜYAM BAYAN KUAFÖRÜ', 
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
+                const Text('RÜYAM BAYAN KUAFÖRÜ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
                 const SizedBox(height: 30),
                 if (_adGoster) TextField(controller: _ad, decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder())),
                 if (_adGoster) const SizedBox(height: 10),
