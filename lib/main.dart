@@ -3,103 +3,143 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Supabase'i başlatıyoruz
   await Supabase.initialize(
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
     anonKey: 'sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh',
   );
+
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: RuyamWeb(),
+    title: 'Rüyam Kuaför',
+    home: RuyamWebSayfasi(),
   ));
 }
 
-class RuyamWeb extends StatefulWidget {
-  const RuyamWeb({super.key});
+class RuyamWebSayfasi extends StatefulWidget {
+  const RuyamWebSayfasi({super.key});
+
   @override
-  State<RuyamWeb> createState() => _RuyamWebState();
+  State<RuyamWebSayfasi> createState() => _RuyamWebSayfasiState();
 }
 
-class _RuyamWebState extends State<RuyamWeb> {
-  // Varsayılan ayarlar (Veritabanı boşsa bunlar görünür)
-  bool _adGoster = true; 
+class _RuyamWebSayfasiState extends State<RuyamWebSayfasi> {
+  // Başlangıç değerleri
+  bool _adGoster = true;
   bool _telGoster = true;
   List<String> _hizmetler = ['Fön', 'Boya', 'Kesim'];
-  String? _secilen;
-  final _ad = TextEditingController();
-  final _tel = TextEditingController();
+  String? _secilenHizmet;
+  
+  final _adController = TextEditingController();
+  final _telController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _ayarlariCek();
+    _ayarlariGetir();
   }
 
-  Future<void> _ayarlariCek() async {
+  // Veritabanından yönetici ayarlarını çeker
+  Future<void> _ayarlariGetir() async {
     try {
-      final res = await Supabase.instance.client.from('WebAyarlari').select();
-      if (res.isNotEmpty) {
+      final veri = await Supabase.instance.client.from('WebAyarlari').select();
+      
+      if (veri != null && veri.isNotEmpty) {
         setState(() {
-          for (var item in res) {
-            if (item['anahtar'] == 'ad_aktif') _adGoster = item['deger'] == 'true';
-            if (item['anahtar'] == 'tel_aktif') _telGoster = item['deger'] == 'true';
-            if (item['anahtar'] == 'servisler') {
-              _hizmetler = (item['deger'] as String).split(',');
-              if (_hizmetler.isNotEmpty) _secilen = _hizmetler.first;
+          for (var ayar in veri) {
+            if (ayar['anahtar'] == 'ad_aktif') _adGoster = ayar['deger'] == 'true';
+            if (ayar['anahtar'] == 'tel_aktif') _telGoster = ayar['deger'] == 'true';
+            if (ayar['anahtar'] == 'servisler') {
+              _hizmetler = (ayar['deger'] as String).split(',');
+              if (_hizmetler.isNotEmpty) _secilenHizmet = _hizmetler.first;
             }
           }
         });
       }
     } catch (e) {
-      debugPrint("Veri çekme hatası: $e");
+      debugPrint('Ayar çekme hatası: $e');
+    }
+  }
+
+  // Randevuyu kaydeder
+  Future<void> _randevuAl() async {
+    try {
+      await Supabase.instance.client.from('RuyamDB').insert({
+        'Ad': _adGoster ? _adController.text : 'İsimsiz',
+        'Tel': _telGoster ? _telController.text : 'No Yok',
+        'Islem': _secilenHizmet ?? 'Belirsiz',
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Randevunuz başarıyla alındı! ✅'), backgroundColor: Colors.green),
+        );
+        _adController.clear();
+        _telController.clear();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('Hata oluştu: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF5F8),
+      backgroundColor: const Color(0xFFFFF0F5), // Tatlı pembe arka plan
       body: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            maxWidth: 400,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [const BoxShadow(color: Colors.black12, blurRadius: 10)],
-            ),
-            child: Column(
-              children: [
-                const Text('RÜYAM BAYAN KUAFÖRÜ', 
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
-                const SizedBox(height: 20),
-                if (_adGoster) TextField(controller: _ad, decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder())),
-                if (_adGoster) const SizedBox(height: 10),
-                if (_telGoster) TextField(controller: _tel, decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder())),
-                if (_telGoster) const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _secilen,
-                  hint: const Text("Hizmet Seçiniz"),
-                  items: _hizmetler.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                  onChanged: (v) => setState(() => _secilen = v),
-                  decoration: const InputDecoration(labelText: 'İşlem', border: OutlineInputBorder()),
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.all(30),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(color: Colors.pink.withOpacity(0.2), blurRadius: 15, spreadRadius: 5)
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('RÜYAM KUAFÖR', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink)),
+              const SizedBox(height: 30),
+              
+              if (_adGoster) 
+                TextField(
+                  controller: _adController,
+                  decoration: const InputDecoration(labelText: 'Adınız Soyadınız', border: OutlineInputBorder(), prefixIcon: Icon(Icons.person)),
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    await Supabase.instance.client.from('RuyamDB').insert({
-                      'Ad': _adGoster ? _ad.text : 'İsimsiz',
-                      'Tel': _telGoster ? _tel.text : 'No Yok',
-                      'Islem': _secilen ?? 'Seçilmedi',
-                    });
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Randevu Alındı! ✨')));
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent, foregroundColor: Colors.white, minSize: const Size(double.infinity, 50)),
-                  child: const Text('RANDEVU AL'),
+              if (_adGoster) const SizedBox(height: 15),
+
+              if (_telGoster) 
+                TextField(
+                  controller: _telController,
+                  decoration: const InputDecoration(labelText: 'Telefon Numaranız', border: OutlineInputBorder(), prefixIcon: Icon(Icons.phone)),
                 ),
-              ],
-            ),
+              if (_telGoster) const SizedBox(height: 15),
+
+              DropdownButtonFormField<String>(
+                value: _secilenHizmet,
+                decoration: const InputDecoration(labelText: 'İşlem Seçiniz', border: OutlineInputBorder(), prefixIcon: Icon(Icons.cut)),
+                items: _hizmetler.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (v) => setState(() => _secilenHizmet = v),
+              ),
+              
+              const SizedBox(height: 25),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _randevuAl,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, foregroundColor: Colors.white),
+                  child: const Text('RANDEVU OLUŞTUR', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
           ),
         ),
       ),
