@@ -1,16 +1,14 @@
-name: ruyam_exclusive
-description: "Ruyam Exclusive Randevu Sistemi"
-publish_to: 'none'
-version: 1.0.0+1
+name: ruyam_kuafor
+description: Ruyam Bayan Kuaforu
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  supabase_flutter: ^2.0.2
-  http: ^1.1.0
+  supabase_flutter: ^2.0.0
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
