@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // 'İ' harfi 'i' olarak düzeltildi.
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -33,14 +33,16 @@ class _RuyamWebPageState extends State<RuyamWebPage> {
   Future<void> _ayarlariCek() async {
     try {
       final veri = await Supabase.instance.client.from('WebAyarlari').select();
-      for (var ayar in veri) {
-        if (ayar['anahtar'] == 'ad_aktif') setState(() => _adGoster = ayar['deger'] == 'true');
-        if (ayar['anahtar'] == 'tel_aktif') setState(() => _telGoster = ayar['deger'] == 'true');
-        if (ayar['anahtar'] == 'servisler') {
-          setState(() {
-            _hizmetler = (ayar['deger'] as String).split(',');
-            if (_hizmetler.isNotEmpty) _secilen = _hizmetler.first;
-          });
+      if (veri.isNotEmpty) {
+        for (var ayar in veri) {
+          if (ayar['anahtar'] == 'ad_aktif') setState(() => _adGoster = ayar['deger'] == 'true');
+          if (ayar['anahtar'] == 'tel_aktif') setState(() => _telGoster = ayar['deger'] == 'true');
+          if (ayar['anahtar'] == 'servisler') {
+            setState(() {
+              _hizmetler = (ayar['deger'] as String).split(',');
+              if (_hizmetler.isNotEmpty) _secilen = _hizmetler.first;
+            });
+          }
         }
       }
     } catch (e) {
@@ -74,12 +76,17 @@ class _RuyamWebPageState extends State<RuyamWebPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  await Supabase.instance.client.from('RuyamDB').insert({
-                    'Ad': _adGoster ? _ad.text : 'İsimsiz',
-                    'Tel': _telGoster ? _tel.text : 'No Yok',
-                    'Islem': _secilen,
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Randevu Alındı! ✨')));
+                  try {
+                    await Supabase.instance.client.from('RuyamDB').insert({
+                      'Ad': _adGoster ? _ad.text : 'İsimsiz',
+                      'Tel': _telGoster ? _tel.text : 'No Yok',
+                      'Islem': _secilen,
+                    });
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Randevu Alındı! ✨')));
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Hata: $e')));
+                  }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent, minimumSize: const Size(double.infinity, 50)),
                 child: const Text('RANDEVU AL', style: TextStyle(color: Colors.white)),
