@@ -7,7 +7,10 @@ void main() async {
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
     anonKey: 'sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh',
   );
-  runApp(const MaterialApp(home: RuyamWeb(), debugShowCheckedModeBanner: false));
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: RuyamWeb(),
+  ));
 }
 
 class RuyamWeb extends StatefulWidget {
@@ -17,7 +20,8 @@ class RuyamWeb extends StatefulWidget {
 }
 
 class _RuyamWebState extends State<RuyamWeb> {
-  bool _adGoster = true;
+  // Varsayılan ayarlar (Veritabanı boşsa bunlar görünür)
+  bool _adGoster = true; 
   bool _telGoster = true;
   List<String> _hizmetler = ['Fön', 'Boya', 'Kesim'];
   String? _secilen;
@@ -40,13 +44,13 @@ class _RuyamWebState extends State<RuyamWeb> {
             if (item['anahtar'] == 'tel_aktif') _telGoster = item['deger'] == 'true';
             if (item['anahtar'] == 'servisler') {
               _hizmetler = (item['deger'] as String).split(',');
-              _secilen = _hizmetler.first;
+              if (_hizmetler.isNotEmpty) _secilen = _hizmetler.first;
             }
           }
         });
       }
     } catch (e) {
-      debugPrint("Ayar Hatası: $e");
+      debugPrint("Veri çekme hatası: $e");
     }
   }
 
@@ -59,19 +63,26 @@ class _RuyamWebState extends State<RuyamWeb> {
           child: Container(
             maxWidth: 400,
             padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [const BoxShadow(color: Colors.black12, blurRadius: 10)],
+            ),
             child: Column(
               children: [
-                const Text('RÜYAM BAYAN KUAFÖRÜ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
-                const SizedBox(height: 30),
+                const Text('RÜYAM BAYAN KUAFÖRÜ', 
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
+                const SizedBox(height: 20),
                 if (_adGoster) TextField(controller: _ad, decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder())),
                 if (_adGoster) const SizedBox(height: 10),
                 if (_telGoster) TextField(controller: _tel, decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder())),
                 if (_telGoster) const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   value: _secilen,
+                  hint: const Text("Hizmet Seçiniz"),
                   items: _hizmetler.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                   onChanged: (v) => setState(() => _secilen = v),
-                  decoration: const InputDecoration(labelText: 'İşlem Seçin', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: 'İşlem', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
@@ -79,13 +90,13 @@ class _RuyamWebState extends State<RuyamWeb> {
                     await Supabase.instance.client.from('RuyamDB').insert({
                       'Ad': _adGoster ? _ad.text : 'İsimsiz',
                       'Tel': _telGoster ? _tel.text : 'No Yok',
-                      'Islem': _secilen,
+                      'Islem': _secilen ?? 'Seçilmedi',
                     });
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Randevu Alındı! ✨')));
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent, minimumSize: const Size(double.infinity, 50)),
-                  child: const Text('RANDEVU AL', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent, foregroundColor: Colors.white, minSize: const Size(double.infinity, 50)),
+                  child: const Text('RANDEVU AL'),
                 ),
               ],
             ),
