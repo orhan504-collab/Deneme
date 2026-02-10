@@ -7,22 +7,22 @@ void main() async {
     url: 'https://cyhrdhttgtdbgwlbtbnw.supabase.co',
     anonKey: 'sb_publishable_LIOI2vJC5XPa0Jxd1VXEEg_lxkuJWRh',
   );
-  runApp(const MaterialApp(home: RuyamWebDinamik(), debugShowCheckedModeBanner: false));
+  runApp(const MaterialApp(home: RuyamWebPage(), debugShowCheckedModeBanner: false));
 }
 
-class RuyamWebDinamik extends StatefulWidget {
-  const RuyamWebDinamik({super.key});
+class RuyamWebPage extends StatefulWidget {
+  const RuyamWebPage({super.key});
   @override
-  State<RuyamWebDinamik> createState() => _RuyamWebDinamikState();
+  State<RuyamWebPage> createState() => _RuyamWebPageState();
 }
 
-class _RuyamWebDinamikState extends State<RuyamWebDinamik> {
+class _RuyamWebPageState extends State<RuyamWebPage> {
   bool _adGoster = true;
   bool _telGoster = true;
   List<String> _hizmetler = ['Fön', 'Boya', 'Kesim'];
-  String? _secilenHizmet;
-  final _adCont = TextEditingController();
-  final _telCont = TextEditingController();
+  String? _secilen;
+  final _ad = TextEditingController();
+  final _tel = TextEditingController();
 
   @override
   void initState() {
@@ -30,7 +30,6 @@ class _RuyamWebDinamikState extends State<RuyamWebDinamik> {
     _ayarlariCek();
   }
 
-  // APK'dan yaptığınız ayarları çeker
   Future<void> _ayarlariCek() async {
     try {
       final veri = await Supabase.instance.client.from('WebAyarlari').select();
@@ -40,12 +39,12 @@ class _RuyamWebDinamikState extends State<RuyamWebDinamik> {
         if (ayar['anahtar'] == 'servisler') {
           setState(() {
             _hizmetler = (ayar['deger'] as String).split(',');
-            _secilenHizmet = _hizmetler.first;
+            if (_hizmetler.isNotEmpty) _secilen = _hizmetler.first;
           });
         }
       }
     } catch (e) {
-      debugPrint("Ayar çekme hatası: $e");
+      debugPrint("Hata: $e");
     }
   }
 
@@ -56,31 +55,31 @@ class _RuyamWebDinamikState extends State<RuyamWebDinamik> {
       body: Center(
         child: Container(
           maxWidth: 400,
-          padding: const EdgeInsets.all(25),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('RÜYAM BAYAN KUAFÖRÜ', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.pink)),
+              const Text('RÜYAM BAYAN KUAFÖRÜ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.pink)),
               const SizedBox(height: 30),
-              if (_adGoster) TextField(controller: _adCont, decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder())),
-              if (_adGoster) const SizedBox(height: 15),
-              if (_telGoster) TextField(controller: _telCont, decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder())),
-              if (_telGoster) const SizedBox(height: 15),
+              if (_adGoster) TextField(controller: _ad, decoration: const InputDecoration(labelText: 'Ad Soyad', border: OutlineInputBorder())),
+              if (_adGoster) const SizedBox(height: 10),
+              if (_telGoster) TextField(controller: _tel, decoration: const InputDecoration(labelText: 'Telefon', border: OutlineInputBorder())),
+              if (_telGoster) const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                value: _secilenHizmet,
+                value: _secilen,
                 items: _hizmetler.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                onChanged: (v) => setState(() => _secilenHizmet = v),
+                onChanged: (v) => setState(() => _secilen = v),
                 decoration: const InputDecoration(labelText: 'İşlem Seçin', border: OutlineInputBorder()),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   await Supabase.instance.client.from('RuyamDB').insert({
-                    'Ad': _adGoster ? _adCont.text : 'İsimsiz',
-                    'Tel': _telGoster ? _telCont.text : 'No Yok',
-                    'Islem': _secilenHizmet,
+                    'Ad': _adGoster ? _ad.text : 'İsimsiz',
+                    'Tel': _telGoster ? _tel.text : 'No Yok',
+                    'Islem': _secilen,
                   });
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Randevunuz Alındı! ✨')));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Randevu Alındı! ✨')));
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent, minimumSize: const Size(double.infinity, 50)),
                 child: const Text('RANDEVU AL', style: TextStyle(color: Colors.white)),
